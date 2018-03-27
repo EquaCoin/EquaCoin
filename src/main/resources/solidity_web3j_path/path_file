@@ -1,0 +1,9 @@
+Solc Comment
+solc CrowdSale.sol --bin --abi --optimize -o E:/Ethereum/Test/CrowdSale
+
+
+
+Web3j Comment
+
+web3j solidity generate E:/Ethereum/Test/AssetToken.bin E:/Ethereum/Test/AssetToken.abi -o E:/Ethereum/Test/CrowdSale/token/java -p com.your.organisation.name
+

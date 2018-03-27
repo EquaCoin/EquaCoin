@@ -1,0 +1,2 @@
+
+insert into equocoin_database.config(id,config_key,config_value)values(2,"walletfile","E://Ethereum//private-network//testnet//keystore//");

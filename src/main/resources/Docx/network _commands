@@ -1,0 +1,22 @@
+private network running command
+open below folder
+C:\Program Files\Geth
+
+right click open git bash window
+
+put following command
+
+./geth.exe  --datadir "/d/Ethereum/private-network" --rpc --rpcport 8545 --rpccorsdomain "*" --rpcaddr="0.0.0.0" --rpcapi="db,eth,net,web3,personal,web3"
+
+open cmd window on same folder
+
+then put : geth attach 
+
+unlockAccount :personal.unlockAccount(account_address,"account_password",gas value)
+
+mining starting command:miner.start()
+
+mining stop command :miner.stop()
+
+
+ 
