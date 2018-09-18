@@ -1,40 +1,24 @@
 package com.equocoin.admin.sevice.impl;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.DecimalFormat;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 import javax.servlet.http.HttpSession;
-
-import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.http.HttpService;
-import org.web3j.utils.Convert;
-
 import com.equocoin.admin.service.AdminService;
 import com.equocoin.dto.TokenDTO;
-import com.equocoin.model.Config;
 import com.equocoin.model.RegisterInfo;
 import com.equocoin.repository.ConfigInfoRepository;
 import com.equocoin.repository.RegisterInfoRepository;
 import com.equocoin.service.impl.TokenUserServiceImpl;
-import com.equocoin.soliditytojava.AssetToken;
-import com.equocoin.utils.EncryptDecrypt;
+import com.equocoin.soliditytojava.Equacoins;
 import com.equocoin.utils.EquocoinUtils;
 import com.equocoin.utils.SessionCollector;
 
@@ -43,11 +27,15 @@ public class AdminServiceImpl implements AdminService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(TokenUserServiceImpl.class);
 
-	private final Web3j web3j = Web3j.build(new HttpService());
+	// private final Web3j web3j = Web3j.build(new HttpService());
+	// private final Web3j web3j = Web3j.build(new
+	// HttpService("https://rinkeby.infura.io"));
+	private final Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io"));
 
 	@Autowired
 	private Environment env;
 
+	@SuppressWarnings("unused")
 	@Autowired
 	private HttpSession session;
 
@@ -57,13 +45,16 @@ public class AdminServiceImpl implements AdminService {
 	@Autowired
 	private SessionCollector sessionCollector;
 
+	@SuppressWarnings("unused")
 	@Autowired
 	private EquocoinUtils equocoinUtils;
 
+	@SuppressWarnings("unused")
 	@Autowired
 	private ConfigInfoRepository configInfoRepository;
 
 	public boolean isAdminExists(TokenDTO tokenDTO) throws Exception {
+		@SuppressWarnings("static-access")
 		HttpSession session = sessionCollector.find(tokenDTO.getSessionId());
 		RegisterInfo equocoinUserInfos = registerInfoRepository
 				.findEquocoinUserInfoByEmailId(session.getAttribute("emailId"));
@@ -90,22 +81,19 @@ public class AdminServiceImpl implements AdminService {
 
 			Credentials credentials = WalletUtils.loadCredentials(env.getProperty("credentials.password"),
 					env.getProperty("credentials.address"));
-			AssetToken assetToken = AssetToken.load(env.getProperty("token.address"), web3j, credentials,
+			Equacoins assetToken = Equacoins.load(env.getProperty("token.address"), web3j, credentials,
 					BigInteger.valueOf(3000000), BigInteger.valueOf(3000000));
 
-			//LOG.info("Total Supply" + assetToken.totalSupply().send());
-			
-			LOG.info("Total Supply" + assetToken.totalSupply().send());
-
 			BigInteger TransferTokenBalance = assetToken.balanceOf(env.getProperty("main.address")).send();
-			tokenDTO.setTotaltokenBalance(TransferTokenBalance);
-			BigInteger totaltokens=assetToken.totalSupply().send();
-			BigInteger mintTokens=assetToken.mintAmount().send();
-			BigInteger soldtokens=assetToken.soldToken().send();
-			BigInteger deleteCoins=assetToken.deleteToken().send();
-			tokenDTO.setMintedAmount(mintTokens);
-			tokenDTO.setSoldTokens(soldtokens);
-			tokenDTO.setDeleteTokens(deleteCoins);
+			tokenDTO.setTotaltokenBalance(TransferTokenBalance.doubleValue() / 10000);
+			@SuppressWarnings("unused")
+			BigInteger totaltokens = assetToken._totalSupply().send();
+			BigInteger mintTokens = assetToken.mintAmount().send();
+			BigInteger soldtokens = assetToken.soldToken().send();
+			BigInteger deleteCoins = assetToken.deleteToken().send();
+			tokenDTO.setMintedAmount(mintTokens.doubleValue() / 10000);
+			tokenDTO.setSoldTokens(soldtokens.doubleValue() / 10000);
+			tokenDTO.setDeleteTokens(deleteCoins.doubleValue() / 10000);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -121,12 +109,11 @@ public class AdminServiceImpl implements AdminService {
 
 			Credentials credentials = WalletUtils.loadCredentials(env.getProperty("credentials.password"),
 					env.getProperty("credentials.addres"));
-			AssetToken assetToken = AssetToken.load(env.getProperty("token.address"), web3j, credentials,
+			Equacoins assetToken = Equacoins.load(env.getProperty("token.address"), web3j, credentials,
 					BigInteger.valueOf(3000000), BigInteger.valueOf(3000000));
 
-			LOG.info("Total Supply" + assetToken.totalSupply().send());
-
-			tokenDTO.setTotaltokenBalance(assetToken.totalSupply().send());
+			BigInteger b = assetToken._totalSupply().send();
+			tokenDTO.setTotaltokenBalance(b.doubleValue() / 10000);
 
 			return true;
 
@@ -145,12 +132,10 @@ public class AdminServiceImpl implements AdminService {
 			Credentials credentials = WalletUtils.loadCredentials(env.getProperty("credentials.password"),
 					env.getProperty("credentials.addres"));
 
-			AssetToken assetToken = AssetToken.load(env.getProperty("token.address"), web3j, credentials,
+			Equacoins assetToken = Equacoins.load(env.getProperty("token.address"), web3j, credentials,
 					BigInteger.valueOf(3000000), BigInteger.valueOf(3000000));
 
 			tokenDTO.setSelledTokens(assetToken.soldToken().send());
-
-			LOG.info("******* soldToken ******* " + assetToken.soldToken().send());
 
 			return true;
 
@@ -176,15 +161,13 @@ public class AdminServiceImpl implements AdminService {
 
 			Credentials credentials = WalletUtils.loadCredentials(env.getProperty("credentials.password"),
 					env.getProperty("credentials.address"));
-			AssetToken assetToken = AssetToken.load(env.getProperty("token.address"), web3j, credentials,
+			Equacoins assetToken = Equacoins.load(env.getProperty("token.address"), web3j, credentials,
 					BigInteger.valueOf(3000000), BigInteger.valueOf(3000000));
 
-			LOG.info("Total Supply" + assetToken.totalSupply().send());
-			
 			BigInteger balance = assetToken.balanceOf(env.getProperty("main.address")).send();
-
-			int count = balance.compareTo(tokenDTO.getTokenBalance());
-			if ( count == 1) {
+			Double balance1 = balance.doubleValue() / 10000;
+			int count = balance1.compareTo(tokenDTO.getTokenBalance());
+			if (count == 1) {
 				return true;
 			}
 

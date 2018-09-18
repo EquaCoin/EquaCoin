@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.equocoin.model.TokenInfo;
 import com.equocoin.model.TransactionHistory;
 
 public interface TransactionInfoRepository extends CrudRepository<TransactionHistory, Integer> {
@@ -17,6 +16,13 @@ public interface TransactionInfoRepository extends CrudRepository<TransactionHis
 			String walletAddress2);
 
 	//public List<TransactionHistory> findByFromAddressOrToAddressDesc(String walletAddress, String walletAddress2);
+	
+    public List<TransactionHistory> findByPaymentModeAndStatusAndFromAddressAndToAddress(String paymentMode, String status, String fromAddress, String toAddress);
+	
+	
+	public List<TransactionHistory> findByPaymentModeAndStatusAndFromAddressOrToAddress(String paymentMode, String status, String fromAddress, String toAddress);
+	
+	
 	
 
 }

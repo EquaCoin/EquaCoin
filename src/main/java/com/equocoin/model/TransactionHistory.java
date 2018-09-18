@@ -1,19 +1,22 @@
 package com.equocoin.model;
 
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+
 
 @Entity
 @Table(name = "transactionHistory")
@@ -36,18 +39,29 @@ public class TransactionHistory implements Serializable {
 	private String toAddress;
 
 	@Column(name = "amount")
-	@NotNull
 	private Double amount;
 
 	@Column(name = "created_Date")
 	private Date createdDate;
 	
 	@Column(name = "token")
-	@NotNull
-	private BigInteger token;
+	private Double token;
 	
 	@Column(name = "payment_mode")
 	private String paymentMode;
+	
+	@Column(name = "status")
+	private String status;
+	
+	@Column(name = "sender_id")
+	private Integer senderId;
+	
+	@Column(name = "receiver_id")
+	private Integer receiverId;
+	
+	@JoinColumn(name = "Email_Id", referencedColumnName = "id", nullable = false)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	private RegisterInfo registerInfo;
 	
 	public Integer getId() {
 		return id;
@@ -89,11 +103,13 @@ public class TransactionHistory implements Serializable {
 		this.createdDate = createdDate;
 	}
 
-	public BigInteger getToken() {
+
+
+	public Double getToken() {
 		return token;
 	}
 
-	public void setToken(BigInteger token) {
+	public void setToken(Double token) {
 		this.token = token;
 	}
 
@@ -103,6 +119,38 @@ public class TransactionHistory implements Serializable {
 
 	public void setPaymentMode(String paymentMode) {
 		this.paymentMode = paymentMode;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public Integer getSenderId() {
+		return senderId;
+	}
+
+	public void setSenderId(Integer senderId) {
+		this.senderId = senderId;
+	}
+
+	public Integer getReceiverId() {
+		return receiverId;
+	}
+
+	public void setReceiverId(Integer receiverId) {
+		this.receiverId = receiverId;
+	}
+
+	public RegisterInfo getRegisterInfo() {
+		return registerInfo;
+	}
+
+	public void setRegisterInfo(RegisterInfo registerInfo) {
+		this.registerInfo = registerInfo;
 	}
 
 	

@@ -41,14 +41,25 @@ import io.swagger.annotations.Api;
 public class AdminActivitesController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RegisterController.class);
+	
+	@SuppressWarnings("unused")
 	private static final HttpServletRequest HttpServletRequest = null;
+	
+	@SuppressWarnings("unused")
 	private static final HttpServletResponse HttpServletResponse = null;
-	private final Web3j web3j = Web3j.build(new HttpService());
+	
+	//private final Web3j web3j = Web3j.build(new HttpService());
+	@SuppressWarnings("unused")
+	private final Web3j web3j = Web3j.build(new HttpService("https://rinkeby.io"));
+	//private final Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io"));
+	
+	@SuppressWarnings("unused")
 	private static EthGetBalance ethGetBalance;
 
 	@Autowired
 	private Environment env;
 
+	@SuppressWarnings("unused")
 	@Autowired
 	private HttpSession session;
 
@@ -60,6 +71,7 @@ public class AdminActivitesController {
 
 	@Autowired
 	private TokenUserService tokenUserService;
+	
 	@Autowired
 	private SolidityHandler solidityHandler;
 

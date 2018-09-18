@@ -1,17 +1,13 @@
 package com.equocoin.service;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.CipherException;
-
 import com.equocoin.dto.LoginDTO;
 import com.equocoin.dto.RegisterDTO;
 

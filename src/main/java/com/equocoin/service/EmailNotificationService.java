@@ -262,4 +262,65 @@ public class EmailNotificationService extends HttpServlet {
 			return false;
 		}
 	}
+	
+	public boolean sendEmailSupport(String toEamilId, String subject, String content) {
+		try {
+			LOG.info("In  sendEmailDEV  START: " + env);
+			
+			SimpleMailMessage mail = new SimpleMailMessage();
+			mail.setTo(toEamilId);
+			mail.setFrom(username);
+			mail.setSubject(subject);
+			Properties properties = new Properties();
+			properties.put("mail.smtp.host", host);
+			properties.put("mail.smtp.port", port);
+			properties.put("mail.smtp.auth", "true");
+			properties.put("mail.smtp.starttls.enable", "true");
+			properties.put("mail.smtp.ssl.trust", host);
+
+			// creates a new session with an authenticator
+			Authenticator auth = new Authenticator() {
+				public PasswordAuthentication getPasswordAuthentication() {
+					return new PasswordAuthentication(username, password);
+				}
+			};
+
+			Session session = Session.getInstance(properties, auth);
+
+			// creates a new e-mail message
+			MimeMessage msg = new MimeMessage(session);
+			msg.setFrom(new InternetAddress(username));
+			InternetAddress[] toAddresses = { new InternetAddress(toEamilId) };
+			msg.setRecipients(Message.RecipientType.TO, toAddresses);
+			msg.setSubject(subject);
+			msg.setSentDate(new Date());
+			MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+			
+			String message = content;
+			
+			helper.setText(message);
+			// set plain text message
+			msg.setContent(message, "text/html");
+			// sends the e-mail
+			
+			
+			
+			
+			LOG.info("Attempting to send an email");
+			
+			Transport.send(msg);
+			
+			LOG.info("Email sent successfully !");
+			LOG.info("In  sendEmailDEV  END: " + env);
+			return true;
+		} catch (MailException e) {
+			LOG.info("Problem in sending mail sendEmailDEV  END: " + env);
+			e.printStackTrace();
+			return false;
+		} catch (Exception e) {
+			LOG.info("Problem in sending mail sendEmailDEV  END: " + env);
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

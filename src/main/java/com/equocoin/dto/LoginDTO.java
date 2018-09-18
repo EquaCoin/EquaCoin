@@ -11,9 +11,16 @@ public class LoginDTO {
 	private String userName;
 	private String walletAddress;
 	private BigDecimal walletBalance;
+	private String qrcodepath;
 	private String id;
 	private Integer type;
-	
+	private Double EQUABalance;
+	private BigDecimal ETHBalance;
+	private String privatekey;
+	private String publickey;
+	private Long tokenRequestCount;
+	private BigDecimal userETHUSD;
+	private Double userEQCUSD;
 	public Integer getType() {
 		return type;
 	}
@@ -96,4 +103,73 @@ public class LoginDTO {
 		this.isdCode = isdCode;
 	}
 
+	public String getQrcodepath() {
+		return qrcodepath;
+	}
+
+	public void setQrcodepath(String qrcodepath) {
+		this.qrcodepath = qrcodepath;
+	}
+
+
+	public Double getEQUABalance() {
+		return EQUABalance;
+	}
+
+	public void setEQUABalance(Double eQUABalance) {
+		EQUABalance = eQUABalance;
+	}
+
+	public BigDecimal getETHBalance() {
+		return ETHBalance;
+	}
+
+	public void setETHBalance(BigDecimal eTHBalance) {
+		ETHBalance = eTHBalance;
+	}
+
+	public String getPrivatekey() {
+		return privatekey;
+	}
+
+	public void setPrivatekey(String privatekey) {
+		this.privatekey = privatekey;
+	}
+
+	public String getPublickey() {
+		return publickey;
+	}
+
+	public void setPublickey(String publickey) {
+		this.publickey = publickey;
+	}
+
+	public Long getTokenRequestCount() {
+		return tokenRequestCount;
+	}
+
+	public void setTokenRequestCount(Long tokenRequestCount) {
+		this.tokenRequestCount = tokenRequestCount;
+	}
+
+	public BigDecimal getUserETHUSD() {
+		return userETHUSD;
+	}
+
+	public void setUserETHUSD(BigDecimal userETHUSD) {
+		this.userETHUSD = userETHUSD;
+	}
+
+	public Double getUserEQCUSD() {
+		return userEQCUSD;
+	}
+
+	public void setUserEQCUSD(Double userEQCUSD) {
+		this.userEQCUSD = userEQCUSD;
+	}
+
+
+	
+
+	
 }

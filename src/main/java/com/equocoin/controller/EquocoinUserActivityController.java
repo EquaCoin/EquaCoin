@@ -11,23 +11,17 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.equocoin.dto.LoginDTO;
+import com.equocoin.dto.MessageInfoDTO;
 import com.equocoin.dto.RegisterDTO;
 import com.equocoin.dto.StatusResponseDTO;
 import com.equocoin.dto.TokenDTO;
-import com.equocoin.handlesolidity.SolidityHandler;
 import com.equocoin.service.EquoCoinUserActivitesService;
 import com.equocoin.service.RegisterUserService;
 import com.equocoin.service.TokenUserService;
-import com.equocoin.service.impl.TokenUserServiceImpl;
-import com.equocoin.soliditytojava.AssetToken;
-import com.equocoin.utils.EncryptDecrypt;
 import com.equocoin.utils.EquocoinUtils;
 import com.google.gson.Gson;
 import com.wordnik.swagger.annotations.Api;
@@ -45,12 +39,14 @@ public class EquocoinUserActivityController {
 	private Environment env;
 
 	@Autowired
-	RegisterUserService registerUserService;
+	private RegisterUserService registerUserService;
 
 	@Autowired
 	private EquocoinUtils equocoinUtils;
+	
 	@Autowired
-	TokenUserServiceImpl tokenUserServiceImpl;
+	private TokenUserService tokenUserService;
+	
 	@Autowired
 	private EquoCoinUserActivitesService equoCoinUserActivitesService;
 
@@ -135,86 +131,239 @@ public class EquocoinUserActivityController {
 		}
 	}
 
-	@CrossOrigin
-	@RequestMapping(value = "/getrefund", method = RequestMethod.POST, produces = { "application/json" })
-	@ApiOperation(value = "refund amount", notes = "Need to show refund amount")
-	public synchronized ResponseEntity<String> getRefund(
-			@ApiParam(value = "Required refund amount details", required = true) @RequestBody TokenDTO tokenDTO) {
-		StatusResponseDTO statusResponseDTO = new StatusResponseDTO();
 
+	@CrossOrigin
+	@RequestMapping(value = "/send/equacoin", method = RequestMethod.POST, produces = { "application/json" })
+	@ApiOperation(value = "Token transfer", notes = "Need to transfer Token for address")
+	public synchronized ResponseEntity<String> sendToken(
+			@ApiParam(value = "Required user details", required = true) @RequestBody TokenDTO tokenDTO) {
+		StatusResponseDTO statusResponseDTO = new StatusResponseDTO();
 		try {
 
-			boolean isSessionExpired = equocoinUtils.isSessionExpired(tokenDTO.getSessionId());
+			boolean isSessionExpired = equocoinUtils.isSessionExpired(tokenDTO);
 
 			if (!isSessionExpired) {
-				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setStatus("failure");
 				statusResponseDTO.setMessage(env.getProperty("session.failure"));
 				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
 			}
-			boolean isAddressExist = tokenUserServiceImpl.isAddressExist(tokenDTO);
-			if (!isAddressExist) {
+
+			boolean isTokenTransfer = equocoinUtils.validateRequestTokenPrams(tokenDTO);
+			if (!isTokenTransfer) {
 				statusResponseDTO.setStatus(env.getProperty("failure"));
-				statusResponseDTO.setMessage(env.getProperty("incorrect.address"));
+				statusResponseDTO.setMessage(env.getProperty("incorrectDetails"));
 				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
 			}
-			String getRefund = tokenUserServiceImpl.getRefund(tokenDTO);
-			/*if (!getRefund) {
+
+			boolean isValidateEthAddress = equocoinUtils.isValidateEthAddress(tokenDTO);
+			if (!isValidateEthAddress) {
 				statusResponseDTO.setStatus(env.getProperty("failure"));
-				statusResponseDTO.setMessage(env.getProperty("refund.failure"));
+				statusResponseDTO.setMessage(env.getProperty("invalid.eth.address"));
 				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
-			}*/
-			statusResponseDTO.setStatus("success");
-			statusResponseDTO.setMessage(getRefund);
+			}
+			boolean isvalidateEmail = equocoinUtils.isValidateToAddress(tokenDTO);
+			if (!isvalidateEmail) {
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(env.getProperty("not.valid.toaddress"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+			
+			
+			boolean isPasswordWrong = equocoinUtils.validatePasswordPrams(tokenDTO);
+			if (!isPasswordWrong) {
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(env.getProperty("password.incorrect"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+			boolean isValidReqToken = equocoinUtils.validateTokenVal(tokenDTO);
+			if (!isValidReqToken) {
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(env.getProperty("invalid.request.token"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+			boolean isAddressValid = tokenUserService.getTransferAccountParams(tokenDTO);
+			{
+
+				if (!isAddressValid) {
+					statusResponseDTO.setStatus(env.getProperty("failure"));
+					statusResponseDTO.setMessage(env.getProperty("incorrect.address"));
+					return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+				}
+			}
+			String isValidTokenBal = tokenUserService.isValidTokenBalForTokenTransfer(tokenDTO);
+			if (isValidTokenBal != "success") {
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(isValidTokenBal);
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+
+			boolean isTransfer = tokenUserService.sendEquacoin(tokenDTO);
+			if (isTransfer) {
+
+				statusResponseDTO.setStatus(env.getProperty("success"));
+				statusResponseDTO.setMessage(env.getProperty("mint.success"));
 			return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.OK);
+			}else{
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(env.getProperty("send.token.failed"));
+				
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOG.error("Problem in tokencreation  : ", e);
+			LOG.error("Problem in send Equacoin   : ", e);
 			statusResponseDTO.setStatus(env.getProperty("failure"));
 			statusResponseDTO.setMessage(env.getProperty("server.problem"));
 			return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
 		}
 	}
+	
+	
+	@CrossOrigin
+	@RequestMapping(value = "/support", method = RequestMethod.POST, produces = { "application/json" })
+	@ApiOperation(value = "Support Infos", notes = "Need to send support message")
+	public synchronized ResponseEntity<String> getMessageFromApi(
+			@ApiParam(value = "Required support Info details", required = true) @RequestBody MessageInfoDTO messageInfoDTO) {
+		StatusResponseDTO statusResponseDTO = new StatusResponseDTO();
+       TokenDTO tokenDTO=new TokenDTO();
+       tokenDTO.setSessionId(messageInfoDTO.getSessionId());
+		try {
 
-	/*
-	 * @CrossOrigin
-	 * 
-	 * @RequestMapping(value = "/get/mainbalance", method = RequestMethod.GET,
-	 * produces = { "application/json" })
-	 * 
-	 * @ApiOperation(value = "Get  Mainbalance", notes =
-	 * "Need to get balance for mainAccount") public synchronized
-	 * ResponseEntity<String> getmainBalance() { StatusResponseDTO
-	 * statusResponseDTO = new StatusResponseDTO(); TokenDTO tokenDTO = new
-	 * TokenDTO(); try {
-	 * 
-	 * 
-	 * 
-	 * boolean isCenteraladmin =
-	 * tokenUserService.validateCentraladmin(tokenDTO); if (!isCenteraladmin) {
-	 * statusResponseDTO.setStatus(env.getProperty("failure"));
-	 * statusResponseDTO.setMessage(env.getProperty("invalidCentraladmin"));
-	 * return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO),
-	 * HttpStatus.PARTIAL_CONTENT); }
-	 * 
-	 * boolean isMainbalance = tokenUserService.checkMainbalance(tokenDTO);
-	 * 
-	 * if (!isMainbalance) {
-	 * statusResponseDTO.setStatus(env.getProperty("failure"));
-	 * statusResponseDTO.setMessage(env.getProperty("invalidMainbalance"));
-	 * return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO),
-	 * HttpStatus.PARTIAL_CONTENT); }
-	 * 
-	 * statusResponseDTO.setStatus("success");
-	 * statusResponseDTO.setMessage(env.getProperty("mainaccount.balance"));
-	 * statusResponseDTO.setMainAccountInfo(tokenDTO); return new
-	 * ResponseEntity<String>(new Gson().toJson(statusResponseDTO),
-	 * HttpStatus.PARTIAL_CONTENT);
-	 * 
-	 * } catch (Exception e) { e.printStackTrace();
-	 * LOG.error("Problem in getMainbalance  : ", e);
-	 * statusResponseDTO.setStatus(env.getProperty("failure"));
-	 * statusResponseDTO.setMessage(env.getProperty("server.problem")); return
-	 * new ResponseEntity<String>(new Gson().toJson(statusResponseDTO),
-	 * HttpStatus.PARTIAL_CONTENT); } }
-	 */
+			boolean isSessionExpired = equocoinUtils.isSessionExpired(tokenDTO.getSessionId());
+
+			if (!isSessionExpired) {
+				statusResponseDTO.setStatus("failure");
+				statusResponseDTO.setMessage(env.getProperty("session.failure"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+
+			boolean isValidSubject = equocoinUtils.isValidSubject(messageInfoDTO);
+
+			if (!isValidSubject) {
+				statusResponseDTO.setStatus("failure");
+				statusResponseDTO.setMessage(env.getProperty("subject.empty"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+
+			boolean isValidContent = equocoinUtils.isValidContent(messageInfoDTO);
+
+			if (!isValidContent) {
+				statusResponseDTO.setStatus("failure");
+				statusResponseDTO.setMessage(env.getProperty("content.empty"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+			
+			boolean isMessageSend = equocoinUtils.sendMessage(messageInfoDTO,tokenDTO);
+			if(isMessageSend){
+				
+				statusResponseDTO.setStatus("success");
+				statusResponseDTO.setMessage(env.getProperty("message.send"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.OK);
+			}
+			else{
+				statusResponseDTO.setStatus("failure");
+				statusResponseDTO.setMessage(env.getProperty("message.not.send"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Problem in support api  : ", e);
+			statusResponseDTO.setStatus(env.getProperty("failure"));
+			statusResponseDTO.setMessage(env.getProperty("server.problem"));
+			return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+		}
+	}
+	
+	@CrossOrigin
+	@RequestMapping(value = "/send/ether", method = RequestMethod.POST, produces = { "application/json" })
+	@ApiOperation(value = "Token transfer", notes = "Need to transfer Token for address")
+	public synchronized ResponseEntity<String> etherTransfer(
+			@ApiParam(value = "Required user details", required = true) @RequestBody TokenDTO tokenDTO) {
+		StatusResponseDTO statusResponseDTO = new StatusResponseDTO();
+		try {
+
+			boolean isSessionExpired = equocoinUtils.isSessionExpired(tokenDTO);
+
+			if (!isSessionExpired) {
+				statusResponseDTO.setStatus("failure");
+				statusResponseDTO.setMessage(env.getProperty("session.failure"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+			boolean isTokenTransfer = equocoinUtils.validateSendEtherPrams(tokenDTO);
+			if (!isTokenTransfer) {
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(env.getProperty("incorrectDetails"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+			
+		/*	boolean isValidReqToken = equocoinUtils.validateEtherVal(tokenDTO);
+			if (!isValidReqToken) {
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(env.getProperty("invalid.request.ether"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}*/
+
+			boolean isValidateEthAddress = equocoinUtils.isValidateEthAddress(tokenDTO);
+			if (!isValidateEthAddress) {
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(env.getProperty("invalid.eth.address"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+			boolean isvalidateEmail = equocoinUtils.isValidateToAddress(tokenDTO);
+			if (!isvalidateEmail) {
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(env.getProperty("not.valid.toaddress"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+			
+			boolean isPasswordWrong = equocoinUtils.validatePasswordPrams(tokenDTO);
+			if (!isPasswordWrong) {
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(env.getProperty("password.incorrect"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+
+			boolean isAddressValid = tokenUserService.getTransferAccountParams(tokenDTO);
+			{
+
+				if (!isAddressValid) {
+					statusResponseDTO.setStatus(env.getProperty("failure"));
+					statusResponseDTO.setMessage(env.getProperty("incorrect.address"));
+					return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+				}
+			}
+
+			boolean isToken = tokenUserService.validEther(tokenDTO);
+			if (!isToken) {
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(tokenDTO.getMessage());
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+
+			}
+
+			boolean isTransfer = tokenUserService.amountTransfer(tokenDTO);
+			if (isTransfer) {
+
+				statusResponseDTO.setStatus(env.getProperty("success"));
+				statusResponseDTO.setMessage(env.getProperty("amount.transfer.success"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.OK);
+			}else{
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(env.getProperty("transfer.amount.failed"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOG.error("Problem in send ether  : ", e);
+			statusResponseDTO.setStatus(env.getProperty("failure"));
+			statusResponseDTO.setMessage(env.getProperty("server.problem"));
+			return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+		}
+	}
+	
 }

@@ -1,32 +1,17 @@
 package com.equocoin.adminController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.equocoin.controller.RegisterController;
-import com.equocoin.dto.LoginDTO;
-import com.equocoin.dto.RegisterDTO;
-import com.equocoin.dto.StatusResponseDTO;
 import com.equocoin.service.RegisterUserService;
-import com.equocoin.utils.EncryptDecrypt;
 import com.equocoin.utils.EquocoinUtils;
-import com.google.gson.Gson;
-
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/equocoin/api/equocoinuser")
@@ -34,16 +19,20 @@ import io.swagger.annotations.ApiParam;
 @CrossOrigin
 public class AdminController {
 
+	@SuppressWarnings("unused")
 	private static final Logger LOG = LoggerFactory.getLogger(RegisterController.class);
 
+	@SuppressWarnings("unused")
 	@Autowired
 	private Environment env;
 
+	@SuppressWarnings("unused")
 	@Autowired
-	EquocoinUtils equocoinUtils;
+	private EquocoinUtils equocoinUtils;
 
+	@SuppressWarnings("unused")
 	@Autowired
-	RegisterUserService registerUserService;
+	private RegisterUserService registerUserService;
 
 	/*@CrossOrigin
 	@RequestMapping(value = "/login", method = RequestMethod.POST, consumes = { "application/json" }, produces = {

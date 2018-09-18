@@ -14,6 +14,7 @@ public class StatusResponseDTO {
 	private TokenDTO tokenBalanceInfo;
 	private List<TokenDTO> listToken;
 	private List<TokenDTO> mintToken;
+	private LoginDTO dashboardInfo;
 	private List<CrowdSaleProposalDTO> crowdSaleProposalLists;
 	
 	public List<TokenDTO> getListToken() {
@@ -86,6 +87,14 @@ public class StatusResponseDTO {
 
 	public void setMintToken(List<TokenDTO> mintToken) {
 		this.mintToken = mintToken;
+	}
+
+	public LoginDTO getDashboardInfo() {
+		return dashboardInfo;
+	}
+
+	public void setDashboardInfo(LoginDTO dashboardInfo) {
+		this.dashboardInfo = dashboardInfo;
 	}
 
 	

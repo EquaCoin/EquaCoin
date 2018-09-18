@@ -20,19 +20,27 @@ struct ProposalStruct {
 	string proposalTitle;
 	string proposalCategory;
     string proposalDetails;
+	string proposalCreatedByName;
 	uint proposalAmount;
-    uint startDate;
-    uint endDate;
+    string startDate;
+    string endDate;
     uint like;
     uint dislike;
+	uint approve;
+	uint reject;
+
     mapping(address => bool) voted;
-  
+    mapping(address => bool) accepted;
     }
+	
+	
+	
     uint proposalCount = 0;
     mapping(address => ProposalStruct) proposalList;
     mapping(address => ProposalStruct)proposalListBasedOnAddress;
     ProposalStruct[] proposalArray;
-
+   
+	
  event LogFunderInitialized(
         address proposalCreatedBy,
         string proposalTitle,
@@ -52,29 +60,35 @@ struct ProposalStruct {
         string _proposalTitle,
         string _proposalCategory,
         string _proposalDetails,
+		string _proposalCreatedByName,
         uint _proposalAmnt,        
-        uint  _startDate,
-        uint  _endDate,
+        string  _startDate,
+        string  _endDate,
         uint _likeVotes,
+		uint _approve,
+	    uint _reject,
+	
+	
         uint _dislikeVotes) public
         {
         _proposalCreatedBy = msg.sender;
 		_likeVotes = 0;
 		_dislikeVotes = 0;
-		startTime = now + ( _startDate *  1 minutes);
-		endTime = now + (_endDate *  1 minutes);
+		//startTime = now + ( _startDate *  1 minutes);
+		//endTime = now + (_endDate *  1 minutes);
 
-		var proposalnew = ProposalStruct( _proposalCreatedBy, _proposalTitle, _proposalCategory, _proposalDetails, _proposalAmnt, startTime, endTime,_likeVotes,_dislikeVotes);
+		var proposalnew = ProposalStruct( _proposalCreatedBy, _proposalTitle, _proposalCategory, _proposalDetails,_proposalCreatedByName,_proposalAmnt, _startDate, _endDate,_likeVotes,_dislikeVotes,_approve,_reject);
          proposalList[_proposalCreatedBy] = proposalnew;
          proposalArray.push(proposalnew);
          proposalCount++;
       
 	}
+	
    
 	function countProposalList() public constant returns (uint count) {     
         return proposalCount;
     }
-
+     
 
     function getProposals(address _proposalCreatedBy) public constant returns ( string) { 
     
@@ -82,10 +96,16 @@ struct ProposalStruct {
     }   
 
   
-    function getAllProposals(uint index) public constant returns (string , string, uint , uint, uint, uint, uint) {   
-        return (proposalArray[index].proposalTitle, proposalArray[index].proposalCategory, proposalArray[index].proposalAmount, proposalArray[index].like, proposalArray[index].dislike,proposalArray[index].startDate, proposalArray[index].endDate);
+    function getAllProposals(uint index) public constant returns (string , string, uint , uint, uint, string, string) {   
+        return (proposalArray[index].proposalTitle, proposalArray[index].proposalCategory, proposalArray[index].proposalAmount, proposalArray[index].like, proposalArray[index].dislike,proposalArray[index].startDate,proposalArray[index].endDate);
+    }
+	
+	 function getApproveProposals(uint index) public constant returns (address , string, string , string, uint, uint, uint) {   
+        return (proposalArray[index].proposalCreatedBy, proposalArray[index].proposalCategory, proposalArray[index].proposalCreatedByName, proposalArray[index].proposalDetails, proposalArray[index].like,proposalArray[index].approve,proposalArray[index].reject);
     }
 
+	
+	
     function getAllProposalsCreatedBy(uint index) public constant returns (address) {   
         return (proposalArray[index].proposalCreatedBy);
     }  
@@ -100,29 +120,59 @@ struct ProposalStruct {
     
     if(!p.voted[msg.sender])
     {
-        if(p.startDate < now && p.endDate > now) 
-        {           // Set this voter as having voted
+                // Set this voter as having voted
         if (voted) {   
             p.voted[msg.sender] = true;         // If they support the proposal
             p.like++; 
                                      // Increase score
+         status("success");
         } else {
             p.voted[msg.sender] = true;       // If they don't
             p.dislike++; 
                                  // Decrease the score
+           status("success");
         }
-        status("success");
+       
+        }  else
+        {
+            status("already voted");
+        }
+  
+
+
+
+    }
+	
+		function accept(uint proposalNumber,bool accepted) public  
+	{
+        ProposalStruct storage a = proposalArray[proposalNumber];
+       
+        // Get the proposal
+      
+
+    
+    if(!a.accepted[msg.sender])
+    {
+                 // Set this voter as having voted
+        if (accepted) {   
+            a.accepted[msg.sender] = true;         // If they support the proposal
+            a.approve += 2; 
+                        // Increase score
+                                       status("success");
+        } else {
+            a.accepted[msg.sender] = true;       // If they don't
+            a.reject += 1; 
+                                 // Decrease the score
+                                 
+         status("proposal rejected successfully");
+        }
+      
         }  
         else
         {
-            status("failed");
+           status("already accepted");
         }
-    }
-    else
-    {
-        status("already voted");
-    }
-
+  
 
 
     }
@@ -132,30 +182,14 @@ struct ProposalStruct {
          _;
     }
     
-	// funding complete for proposal 
-	function isCrowdSaleEnd(uint limit,uint proposalNumber) public {
-		ProposalStruct storage p = proposalArray[proposalNumber]; 
-		if ( p.like > limit && now > p.endDate) {
-            isCrowdSaleEndStatus("success");
-		/* state = State.Successful;
-		payOut(); */
-	}
-    else
-    {
-        isCrowdSaleEndStatus("failed");
-    }
 
-     /* else if ( now > deadline ) {
-  state = State.Failed; 
-  }  */
- }
 
- function payOut() public inState(State.Successful)
- {
-	require(adminAccount.send(this.balance));
-	state = State.Closed;
-	//LogWinnerPaid(beneficiary);
- }
+ //function payOut() public inState(State.Successful)
+// {
+//	require(adminAccount.send(this.balance));
+//	state = State.Closed;
+	
+ //}
  
 
  }

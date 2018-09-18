@@ -1,6 +1,6 @@
 package com.equocoin.model;
 
-import java.util.Date;
+import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,70 +14,48 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
-@Table(name = "Admin_Info")
+@Table(name = "SupportInfo")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class AdminInfo {
-
+public class SupportInfo implements Serializable{
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
-
-	@Column(name = "password")
-	@NotNull
-	private String password;
-
-	@Column(name = "Email_Id")
-	@NotNull
-	private String emailId;
-
-	@Column(name = "created_Date")
-	private Date createdDate;
 	
-	@Column(name = "version")
-	private Date version;
-
+	@Column(name = "subject")
+	@NotNull
+	private String subject;
+	
+	@Column(name = "content")
+	@NotNull
+	private String content;
+	@Column(name = "userId")
+	private Integer userId;
 	public Integer getId() {
 		return id;
 	}
-
 	public void setId(Integer id) {
 		this.id = id;
 	}
-
-	public String getPassword() {
-		return password;
+	public String getSubject() {
+		return subject;
 	}
-
-	public void setPassword(String password) {
-		this.password = password;
+	public void setSubject(String subject) {
+		this.subject = subject;
 	}
-
-	public String getEmailId() {
-		return emailId;
+	public String getContent() {
+		return content;
 	}
-
-	public void setEmailId(String emailId) {
-		this.emailId = emailId;
+	public void setContent(String content) {
+		this.content = content;
 	}
-
-	public Date getCreatedDate() {
-		return createdDate;
+	public Integer getUserId() {
+		return userId;
 	}
-
-	public void setCreatedDate(Date createdDate) {
-		this.createdDate = createdDate;
+	public void setUserId(Integer userId) {
+		this.userId = userId;
 	}
-
-	public Date getVersion() {
-		return version;
-	}
-
-	public void setVersion(Date version) {
-		this.version = version;
-	}
-
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}

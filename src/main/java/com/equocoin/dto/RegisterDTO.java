@@ -13,10 +13,8 @@ public class RegisterDTO {
 	private String walletPassword;
 	private String walletBalance;
 	private String sessionId;
-
-	
-	
-
+	private String deviceType;
+	private  String appId;
 
 	public String getConfirmPassword() {
 		return confirmPassword;
@@ -114,4 +112,21 @@ public class RegisterDTO {
 		this.isdCode = isdCode;
 	}
 
+	public String getDeviceType() {
+		return deviceType;
+	}
+
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
+	}
+
+	public String getAppId() {
+		return appId;
+	}
+
+	public void setAppId(String appId) {
+		this.appId = appId;
+	}
+
+	
 }

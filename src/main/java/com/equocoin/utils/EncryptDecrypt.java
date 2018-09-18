@@ -5,8 +5,9 @@ import java.security.MessageDigest;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.apache.commons.codec.binary.Base64;
+//import org.apache.tomcat.util.codec.binary.Base64;
+
 
 public class EncryptDecrypt
 {
@@ -63,17 +64,17 @@ public class EncryptDecrypt
         }
     }
     
-   /* public static void main(String[] arguments) throws Exception
-    {
-        String encryptionKey = "MZygpewJsCpRrfOr";
-        String plainText = "User0505";
-//        EncryptDecrypt encryptDecrypt = new EncryptDecrypt(
-//                encryptionKey);
-        String cipherText = EncryptDecrypt.encrypt(plainText);
-        String decryptedCipherText = EncryptDecrypt.decrypt(cipherText);
-
-        System.out.println(plainText);
-        System.out.println("encrypt===="+cipherText);
-        System.out.println(decryptedCipherText);
-    }*/
+//   public static void main(String[] arguments) throws Exception
+//    {
+//        String encryptionKey = "6TwkwjA1fng5mR+i7QXOIA==";
+//        String plainText = "0x49cef126c52ed7931569183bbdd709c9d60d62a6";
+////        EncryptDecrypt encryptDecrypt = new EncryptDecrypt(
+////                encryptionKey);
+//        String cipherText = EncryptDecrypt.encrypt(plainText);
+//        String decryptedCipherText = EncryptDecrypt.decrypt(encryptionKey);
+//
+//        System.out.println(plainText);
+//        System.out.println("encrypt===="+cipherText);
+//        System.out.println("decrypt"+"  "+decryptedCipherText);
+//    }
 }

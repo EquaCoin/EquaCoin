@@ -8,14 +8,14 @@ import com.equocoin.model.RegisterInfo;
 
 public class TokenDTO {
 
-	private BigInteger id;
+	private Integer id;
 	private BigInteger initialValue;
 	private String coinName;
 	private String coinSymbol;
 	private BigInteger decimalUnits;
 	private String centralAdmin;
 	private BigDecimal mainBalance;
-	private BigInteger tokens;
+	private Double tokens;
 	private String toAddress;
 	private String fromAddress;
 	private BigDecimal amount;
@@ -23,8 +23,8 @@ public class TokenDTO {
 	private BigInteger gasValue;
 	private String walletAddress;
 	private String walletPassword;
-	private BigInteger tokenBalance;
-	private BigInteger TotaltokenBalance;
+	private Double tokenBalance;
+	private Double TotaltokenBalance;
 	private BigInteger selledTokens;
 	private String tokenAddress;
 	private String sessionId;
@@ -35,26 +35,35 @@ public class TokenDTO {
 	private BigInteger crowdSaleTokenBalance;
 	private BigInteger crowdSaleSoldTokens;
 	private BigInteger transferTokenBalance;
-	private BigDecimal requestToken;
-	private BigInteger soldTokens;
-    private BigInteger mintedAmount;
-    private BigInteger deleteTokens;
+	private Double requestToken;
+	private Double soldTokens;
+    private Double mintedAmount;
+    private Double deleteTokens;
     private String paymentMode;
-    
-	public BigInteger getDeleteTokens() {
-		return deleteTokens;
-	}
-
-	public void setDeleteTokens(BigInteger deleteTokens) {
-		this.deleteTokens = deleteTokens;
-	}
-
-	public BigInteger getSoldTokens() {
+    private String mintStatus;
+    private String transactionStatus;
+    private String sender;
+    private String receiver;
+    private Double transferAmounts;
+    private Integer gasPrice;
+    private RegisterInfo registerInfo;
+	private Long tokenRequestCount;
+	private Double requestCoin;
+    private String message;
+	public Double getSoldTokens() {
 		return soldTokens;
 	}
 
-	public void setSoldTokens(BigInteger soldTokens) {
+	public void setSoldTokens(Double soldTokens) {
 		this.soldTokens = soldTokens;
+	}
+
+	public Double getDeleteTokens() {
+		return deleteTokens;
+	}
+
+	public void setDeleteTokens(Double deleteTokens) {
+		this.deleteTokens = deleteTokens;
 	}
 
 	public BigInteger getBalance() {
@@ -89,11 +98,13 @@ public class TokenDTO {
 		this.tokenAddress = tokenAddress;
 	}
 
-	public BigInteger getTokenBalance() {
+
+
+	public Double getTokenBalance() {
 		return tokenBalance;
 	}
 
-	public void setTokenBalance(BigInteger tokenBalance) {
+	public void setTokenBalance(Double tokenBalance) {
 		this.tokenBalance = tokenBalance;
 	}
 
@@ -121,11 +132,12 @@ public class TokenDTO {
 		this.fromAddress = fromAddress;
 	}
 
-	public BigInteger getTokens() {
+	
+	public Double getTokens() {
 		return tokens;
 	}
 
-	public void setTokens(BigInteger tokens) {
+	public void setTokens(Double tokens) {
 		this.tokens = tokens;
 	}
 
@@ -177,11 +189,12 @@ public class TokenDTO {
 		this.centralAdmin = centralAdmin;
 	}
 
-	public BigInteger getId() {
+	
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(BigInteger id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -225,11 +238,12 @@ public class TokenDTO {
 		this.transferAmount = transferAmount;
 	}
 
-	public BigInteger getTotaltokenBalance() {
+
+	public Double getTotaltokenBalance() {
 		return TotaltokenBalance;
 	}
 
-	public void setTotaltokenBalance(BigInteger totaltokenBalance) {
+	public void setTotaltokenBalance(Double totaltokenBalance) {
 		TotaltokenBalance = totaltokenBalance;
 	}
 
@@ -273,19 +287,22 @@ public class TokenDTO {
 		this.transferTokenBalance = transferTokenBalance;
 	}
 
-	public BigDecimal getRequestToken() {
+
+
+	public Double getRequestToken() {
 		return requestToken;
 	}
 
-	public void setRequestToken(BigDecimal requestToken) {
+	public void setRequestToken(Double requestToken) {
 		this.requestToken = requestToken;
 	}
 
-	public BigInteger getMintedAmount() {
+
+	public Double getMintedAmount() {
 		return mintedAmount;
 	}
 
-	public void setMintedAmount(BigInteger mintedAmount) {
+	public void setMintedAmount(Double mintedAmount) {
 		this.mintedAmount = mintedAmount;
 	}
 
@@ -297,5 +314,88 @@ public class TokenDTO {
 		this.paymentMode = paymentMode;
 	}
 
+	public String getMintStatus() {
+		return mintStatus;
+	}
+
+	public void setMintStatus(String mintStatus) {
+		this.mintStatus = mintStatus;
+	}
+
+	public String getTransactionStatus() {
+		return transactionStatus;
+	}
+
+	public void setTransactionStatus(String transactionStatus) {
+		this.transactionStatus = transactionStatus;
+	}
+
+	
+
+	public String getSender() {
+		return sender;
+	}
+
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
+
+	public String getReceiver() {
+		return receiver;
+	}
+
+	public void setReceiver(String receiver) {
+		this.receiver = receiver;
+	}
+
+	public Double getTransferAmounts() {
+		return transferAmounts;
+	}
+
+	public void setTransferAmounts(Double transferAmounts) {
+		this.transferAmounts = transferAmounts;
+	}
+
+	public Integer getGasPrice() {
+		return gasPrice;
+	}
+
+	public void setGasPrice(Integer gasPrice) {
+		this.gasPrice = gasPrice;
+	}
+
+	public RegisterInfo getRegisterInfo() {
+		return registerInfo;
+	}
+
+	public void setRegisterInfo(RegisterInfo registerInfo) {
+		this.registerInfo = registerInfo;
+	}
+
+	public Long getTokenRequestCount() {
+		return tokenRequestCount;
+	}
+
+	public void setTokenRequestCount(Long tokenRequestCount) {
+		this.tokenRequestCount = tokenRequestCount;
+	}
+
+	public Double getRequestCoin() {
+		return requestCoin;
+	}
+
+	public void setRequestCoin(Double requestCoin) {
+		this.requestCoin = requestCoin;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	
 	
 }

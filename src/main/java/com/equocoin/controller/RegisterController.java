@@ -1,16 +1,9 @@
 package com.equocoin.controller;
 
-import java.io.File;
-import java.io.FileReader;
-import java.math.BigInteger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.apache.commons.lang.StringUtils;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.web3j.crypto.WalletUtils;
-import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
-import org.web3j.protocol.http.HttpService;
-
 import com.equocoin.dto.LoginDTO;
 import com.equocoin.dto.RegisterDTO;
 import com.equocoin.dto.StatusResponseDTO;
@@ -38,7 +26,6 @@ import com.equocoin.utils.EncryptDecrypt;
 import com.equocoin.utils.EquocoinUtils;
 import com.equocoin.utils.SessionCollector;
 import com.google.gson.Gson;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -50,26 +37,39 @@ import io.swagger.annotations.ApiParam;
 public class RegisterController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RegisterController.class);
+	
+	@SuppressWarnings("unused")
 	private static final HttpServletRequest HttpServletRequest = null;
+	
+	@SuppressWarnings("unused")
 	private static final HttpServletResponse HttpServletResponse = null;
-	private final Web3j web3j = Web3j.build(new HttpService());
-	EthGetBalance ethGetBalance;
+	
+	//private final Web3j web3j = Web3j.build(new HttpService());
+	//private final Web3j web3j = Web3j.build(new HttpService("https://rinkeby.infura.io/"));
+	//private final Web3j web3j = Web3j.build(new HttpService("https://mainnet.infura.io"));
+	@SuppressWarnings("unused")
+	private EthGetBalance ethGetBalance;
+	
 	@Autowired
 	private Environment env;
+	
+	@SuppressWarnings("unused")
 	@Autowired
 	private HttpSession session;
 
 	@Autowired
-	RegisterUserService registerUserService;
+	private RegisterUserService registerUserService;
+
+	@SuppressWarnings("unused")
+	@Autowired
+	private EmailNotificationService emailNotificationService;
 
 	@Autowired
-	EmailNotificationService emailNotificationService;
+	private EquocoinUtils equocoinUtils;
 
+	@SuppressWarnings("unused")
 	@Autowired
-	EquocoinUtils equocoinUtils;
-
-	@Autowired
-	SessionCollector sessionCollector;
+	private SessionCollector sessionCollector;
 
 	@CrossOrigin
 	@RequestMapping(value = "/register", method = RequestMethod.POST, produces = { "application/json" })
@@ -166,6 +166,13 @@ public class RegisterController {
 				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
 
 			}
+			boolean isAppIdCheck = equocoinUtils.isAppIdCheck(registerDTO);
+			if (!isAppIdCheck) {
+				statusResponseDTO.setStatus(env.getProperty("failure"));
+				statusResponseDTO.setMessage(env.getProperty("app.id"));
+				return new ResponseEntity<String>(new Gson().toJson(statusResponseDTO), HttpStatus.PARTIAL_CONTENT);
+			}
+			
 			String encryptPassword = EncryptDecrypt.encrypt(registerDTO.getPassword());
 			LoginDTO responseDTO = registerUserService.isEmailIdAndPasswordExist(registerDTO, request, encryptPassword);
 			if (responseDTO.getStatus().equalsIgnoreCase("failed")) {

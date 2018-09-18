@@ -2,7 +2,6 @@
 package com.equocoin.model;
 
 	import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -32,10 +31,14 @@ import javax.persistence.Column;
 				
 		@Column(name = "mintToken")
 		@NotNull
-		private BigInteger mintToken;
+		private Double mintToken;
 		
 		@Column(name = "created_Date")
 		private Date createdDate;
+		
+		@Column(name = "status")
+		//@NotNull
+		private String status;
 
 		public Integer getId() {
 			return id;
@@ -55,11 +58,12 @@ import javax.persistence.Column;
 
 		
 
-		public BigInteger getMintToken() {
+	
+		public Double getMintToken() {
 			return mintToken;
 		}
 
-		public void setMintToken(BigInteger mintToken) {
+		public void setMintToken(Double mintToken) {
 			this.mintToken = mintToken;
 		}
 
@@ -69,6 +73,14 @@ import javax.persistence.Column;
 
 		public void setCreatedDate(Date createdDate) {
 			this.createdDate = createdDate;
+		}
+
+		public String getStatus() {
+			return status;
+		}
+
+		public void setStatus(String status) {
+			this.status = status;
 		}
 
 		

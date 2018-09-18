@@ -1,114 +1,203 @@
 pragma solidity ^0.4.11;
- 
-contract admined {
-	address public admin;
 
-	function admined(){
-		admin = msg.sender;
-	}
+contract Owned {
 
-	modifier onlyAdmin(){
-		require(msg.sender == admin);
-		_;
-	}
+    address public owner;
 
-	function transferAdminship(address newAdmin) onlyAdmin {
-		admin = newAdmin;
-	}
+    function Owned() {
+        owner = msg.sender;
+    }
 
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function setOwner(address _newOwner) onlyOwner {
+	 if(_newOwner == 0x0)revert();
+        owner = _newOwner;
+    }
 }
+
+/**
+ * @title SafeMath
+ * @dev Math operations with safety checks that throw on error
+ */
+library SafeMath {
+  function mul(uint256 a, uint256 b) internal constant returns (uint256) {
+    uint256 c = a * b;
+    assert(a == 0 || c / a == b);
+    return c;
+  }
+
+  function div(uint256 a, uint256 b) internal constant returns (uint256) {
+    // assert(b > 0); // Solidity automatically throws when dividing by 0
+    uint256 c = a / b;
+    // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+    return c;
+  }
+
+  function sub(uint256 a, uint256 b) internal constant returns (uint256) {
+    assert(b <= a);
+    return a - b;
+  }
+
+  function add(uint256 a, uint256 b) internal constant returns (uint256) {
+    uint256 c = a + b;
+    assert(c >= a);
+    return c;
+  }
+
+  function toUINT112(uint256 a) internal constant returns(uint112) {
+    assert(uint112(a) == a);
+    return uint112(a);
+  }
+
+  function toUINT120(uint256 a) internal constant returns(uint120) {
+    assert(uint120(a) == a);
+    return uint120(a);
+  }
+
+  function toUINT128(uint256 a) internal constant returns(uint128) {
+    assert(uint128(a) == a);
+    return uint128(a);
+  }
+}
+
+
+// Abstract contract for the full ERC 20 Token standard
+// https://github.com/ethereum/EIPs/issues/20
 
 contract Token {
+ 
+    function totalSupply() public  returns (uint256 supply);
+	 
+    function transfer(address _to, uint256 _value) returns (bool success);
 
-	mapping (address => uint256) public balanceOf;
-	// balanceOf[address] = 5;
-	string public name;
-	string public symbol;
-	uint8 public decimal; 
-	uint256 public totalSupply;
-	uint256 public soldToken;
-	uint256 public mintAmount=0;
-	uint256 public deleteToken=0;
+    function transferFrom(address _from, address _to, uint256 _value) returns (bool success);
 
-	event Transfer(address indexed from, address indexed to, uint256 value);
-	event Burn(address indexed from, uint256 value);
+    function approve(address _spender, uint256 _value) returns (bool success);
+  
+    function allowance(address _owner, address _spender) constant returns (uint256 remaining);
+  
+    function burn( uint256 _value) public returns (bool success);
 
-	function Token(uint256 initialSupply, string tokenName, string tokenSymbol, uint8 decimalUnits){
-		balanceOf[msg.sender] = initialSupply;
-		totalSupply = initialSupply;
-		decimal = decimalUnits;
-		symbol = tokenSymbol;
-		name = tokenName;
-	}
-
-	function transfer(address _to, uint256 _value){
-		require(balanceOf[msg.sender] >= _value);
-		require(balanceOf[_to] + _value >= balanceOf[_to]);
-		balanceOf[msg.sender] -= _value;
-		balanceOf[_to] += _value;
-		Transfer(msg.sender, _to, _value);
-	}
-
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
+  
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+  
+    event Burn(address indexed from, uint256 value);
 }
 
-contract AssetToken is admined, Token{
 
-	function AssetToken(uint256 initialSupply, string tokenName, string tokenSymbol, uint8 decimalUnits, address centralAdmin) Token (0, tokenName, tokenSymbol, decimalUnits ){
-		totalSupply = initialSupply;
-		soldToken = 0;
-		
-		if(centralAdmin != 0)
-			admin = centralAdmin;
-		else
-			admin = msg.sender;
-		balanceOf[admin] = initialSupply;
-		totalSupply = initialSupply;	
-	}
 
-	function mintToken(address target, uint256 mintedAmount) onlyAdmin{
-		balanceOf[target] += mintedAmount;
-		mintAmount += mintedAmount;
-		totalSupply += mintedAmount;
-		Transfer(0, this, mintedAmount);
-		Transfer(this, target, mintedAmount);
-	}
+contract Equacoins is Token, Owned {
+    using SafeMath for uint256;
+  
+    uint public  _totalSupply;
+  
+    string public   name;         //The Token's name
+  
+    uint8 public constant decimals = 4;    //Number of decimals of the smallest unit
+  
+    string public  symbol;    //The Token's symbol 
+  
+    uint256 public mintAmount;
+  
+    uint256 public deleteToken;
+  
+    uint256 public soldToken;
 
-	function transfer(address _to, uint256 _value){
-		require(balanceOf[msg.sender] > 0);
-		require(balanceOf[msg.sender] >= _value);
-		require(balanceOf[_to] + _value >= balanceOf[_to]);
-		//if(admin)
-		balanceOf[msg.sender] -= _value;
-		balanceOf[_to] += _value;
-		soldToken +=  _value;
-		Transfer(msg.sender, _to, _value);
-	}
+   
+    mapping (address => uint256) public balanceOf;
 
-	function transferCrwdsale(address _to, uint256 _value){
-		require(balanceOf[msg.sender] > 0);
-		require(balanceOf[msg.sender] >= _value);
-		require(balanceOf[_to] + _value >= balanceOf[_to]);
-		//if(admin)
-		balanceOf[msg.sender] -= _value;
-		balanceOf[_to] += _value;
-		soldToken +=  _value;
-		Transfer(msg.sender, _to, _value);
-	}
+    // Owner of account approves the transfer of an amount to another account
+    mapping(address => mapping(address => uint256)) allowed;
+
+  
+
+    // Constructor
+    function Equacoins(string coinName,string coinSymbol,uint initialSupply) {
+        _totalSupply = initialSupply *10**uint256(decimals);                        // Update total supply
+        balanceOf[msg.sender] = _totalSupply; 
+        name = coinName;                                   // Set the name for display purposes
+        symbol =coinSymbol;   
+        
+    }
+
+   function totalSupply()  public  returns (uint256 totalSupply) {
+        return _totalSupply;
+    }
 	
-	
-	function burn(uint256 _value) public returns (bool success) {
-        require(balanceOf[msg.sender] >= _value);   
-        balanceOf[msg.sender] -= _value;
-        deleteToken  += _value;           
-        totalSupply -= _value;                      
-        Burn(msg.sender, _value);
+    // Send back ether sent to me
+    function () {
+        revert();
+    }
+
+    // Transfer the balance from owner's account to another account
+    function transfer(address _to, uint256 _amount) returns (bool success) {
+        // according to AssetToken's total supply, never overflow here
+        if (balanceOf[msg.sender] >= _amount
+            && _amount > 0) {            
+            balanceOf[msg.sender] -= uint112(_amount);
+            balanceOf[_to] = _amount.add(balanceOf[_to]).toUINT112();
+            soldToken = _amount.add(soldToken).toUINT112();
+            Transfer(msg.sender, _to, _amount);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+   
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) returns (bool success) {
+        // according to AssetToken's total supply, never overflow here
+        if (balanceOf[_from] >= _amount
+            && allowed[_from][msg.sender] >= _amount
+            && _amount > 0) {
+            balanceOf[_from] = balanceOf[_from].sub(_amount).toUINT112();
+            allowed[_from][msg.sender] -= _amount;
+            balanceOf[_to] = _amount.add(balanceOf[_to]).toUINT112();
+            Transfer(_from, _to, _amount);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+   
+    function approve(address _spender, uint256 _amount) returns (bool success) {
+        allowed[msg.sender][_spender] = _amount;
+        Approval(msg.sender, _spender, _amount);
         return true;
     }
 
-}
 
 
+    function allowance(address _owner, address _spender) constant returns (uint256 remaining) {
+        return allowed[_owner][_spender];
+    }
 
-
-
+    //Mint tokens and assign to some one
+    function mint(address _owner, uint256 _amount) onlyOwner{
+     
+            balanceOf[_owner] = _amount.add(balanceOf[_owner]).toUINT112();
+            mintAmount =  _amount.add(mintAmount).toUINT112();
+            _totalSupply = _totalSupply.add(_amount).toUINT112();
+    }
+  //Burn tokens from owner account
+  function burn(uint256 _count) public returns (bool success)
+  {
+          balanceOf[msg.sender] -=uint112( _count);
+          deleteToken = _count.add(deleteToken).toUINT112();
+         _totalSupply = _totalSupply.sub(_count).toUINT112();
+          Burn(msg.sender, _count);
+		  return true;
+    }
+    
+  }  
 

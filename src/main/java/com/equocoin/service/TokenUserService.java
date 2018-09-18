@@ -1,18 +1,14 @@
 package com.equocoin.service;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.stereotype.Service;
-import org.web3j.crypto.CipherException;
-
 import com.equocoin.dto.TokenDTO;
+import com.equocoin.model.RegisterInfo;
 
 @Service
 public interface TokenUserService {
+	
 	public boolean TokenCreate(TokenDTO tokenDTO);
 
 	public boolean saveTokenGenerationInfo(TokenDTO tokenDTO);
@@ -41,14 +37,32 @@ public interface TokenUserService {
 
 	public boolean getTransferAccountParams(TokenDTO tokenDTO) throws Exception;
 
-	public boolean TransferCoin(TokenDTO tokenDTO) throws  Exception;
+	public boolean TransferCoin(TokenDTO tokenDTO) throws Exception;
 
-	public boolean sendToken(TokenDTO tokenDTO)throws Exception;
+	public boolean sendToken(TokenDTO tokenDTO) throws Exception;
 
 	public boolean validateMintTokenParams(TokenDTO tokenDTO);
 
-	//public boolean isValidTokenBal(TokenDTO tokenDTO) throws Exception;
+	public boolean isAddressExist(TokenDTO tokenDTO) throws Exception;
+
+	public String getRefund(TokenDTO tokenDTO) throws Exception;
+
+	public String isValidTokenBalForTokenTransfer(TokenDTO tokenDTO) throws Exception;
+
+	public boolean sendEquacoin(TokenDTO tokenDTO) throws Exception;
+
+	// public boolean isValidTokenBal(TokenDTO tokenDTO) throws Exception;
 
 	/* boolean getAdminTokenBalance(TokenDTO tokenDTO) throws Exception; */
+
+	public boolean validEther(TokenDTO tokenDTO);
+
+	public boolean amountTransfer(TokenDTO tokenDTO) throws Exception;
+
+	void sendETHCoinPushNotificationFrom(RegisterInfo registerInfo, TokenDTO tokenDTO);
+
+	void sendETHCoinPushNotificationTo(RegisterInfo registerInfo, TokenDTO tokenDTO);
+	
+	void requestcoinPushNotification(TokenDTO tokenDTO) throws Exception;
 
 }
